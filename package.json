@@ -1,0 +1,30 @@
+{
+  "name": "logfd",
+  "version": "0.1.0",
+  "description": "Append log msg to file. (No defined log format And fast)",
+  "main": "logfd.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Bacra/node-logfd.git"
+  },
+  "scripts": {
+    "test": "node test/test"
+  },
+  "keywords": [
+    "log",
+    "file",
+    "fast"
+  ],
+  "author": "Bacra Woo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Bacra/node-logfd/issues"
+  },
+  "homepage": "https://github.com/Bacra/node-logfd",
+  "dependencies": {
+    "debug": "^2.2.0",
+    "moment": "^2.10.3",
+    "qpd": "^0.1.2",
+    "xtend": "^4.0.0"
+  }
+}
