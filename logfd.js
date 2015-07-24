@@ -17,7 +17,7 @@ function Logfd(opts) {
 	}
 
 	// 罗列成员变量
-	this._deadline = this._preline = 0;
+	this._deadline = 0;
 	this.file = this.qpd = this.preQpd = null;
 
 	this.init_();
@@ -76,7 +76,8 @@ Logfd.prototype = {
 			});
 		}
 
-		debug('switch qpd, now:%s, old:%d', now, oldQpd ? 1 : 0);
+		// 切换到新的qpd
+		debug('switch qpd, now:%s, file:%s, old:%d', now, qpd._logfdFile, oldQpd ? 1 : 0);
 		self.qpd = qpd;
 		self.file = qpd._logfdFile;
 
