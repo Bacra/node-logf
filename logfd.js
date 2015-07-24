@@ -1,6 +1,6 @@
 var QPD		= require('qpd').QPD;
 var xtend	= require('xtend');
-var moment	= require('moment');
+var dateformat	= require('dateformat');
 var debug	= require('debug')('logfd');
 
 
@@ -25,8 +25,9 @@ function Logfd(opts) {
 
 Logfd.prototype = {
 	init_: function() {
-		var qpd = this._genQPD(new Date);
-		this._switchQPD(qpd);
+		var now = new Date;
+		var qpd = this._genQPD(now);
+		this._switchQPD(qpd, now);
 	},
 	handler: function(now, msg) {
 		if (!(now instanceof Date)) {
@@ -47,7 +48,7 @@ Logfd.prototype = {
 	},
 	// 通过时间获取文件路径
 	_getFilepathFromDate: function(time) {
-		return this.opts.root+'/'+moment(time).format('YYYYMMDDHH')+'.log';
+		return this.opts.root+'/'+dateformat(time, 'yyyymmddHH')+'.log';
 	},
 	// 通过时间创建qpd对象
 	_genQPD: function(time) {
@@ -78,10 +79,9 @@ Logfd.prototype = {
 
 		// 切换到新的qpd
 		debug('switch qpd, now:%s, file:%s, old:%d', now, qpd._logfdFile, oldQpd ? 1 : 0);
-		self.qpd = qpd;
-		self.file = qpd._logfdFile;
-
-		var next =  self._nextTime(now);
+		self.qpd	= qpd;
+		self.file	= qpd._logfdFile;
+		var next	= self._nextTime(now);
 		self._deadline = +next;
 
 		// 提前准备fd
