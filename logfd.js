@@ -1,4 +1,6 @@
-var QPD			= require('abq').QPD;
+'use strict';
+
+var ABQ			= require('abq').cls;
 var events		= require('events');
 var extend		= require('extend');
 var debug		= require('debug')('logfd');
@@ -19,7 +21,7 @@ function Logfd(opts) {
 
 	// 罗列成员变量
 	this._deadline = 0;
-	this.file = this.abq = this.preQpd = null;
+	this.file = this.fdmgr = this.preFdmgr = null;
 	events.EventEmitter.call(this);
 
 	this.init_();
@@ -30,8 +32,8 @@ require('util').inherits(Logfd, events.EventEmitter);
 extend(Logfd.prototype, {
 	init_: function() {
 		var now = new Date;
-		var abq = this._genQPD(now);
-		this._switchQPD(abq, now);
+		var fdmgr = this._genFdmgr(now);
+		this._switchFdmgr(fdmgr, now);
 	},
 	handler: function(now, msg) {
 		if (!(now instanceof Date)) {
@@ -40,68 +42,68 @@ extend(Logfd.prototype, {
 		}
 
 		this._checkFdFilepath(now);
-		this.abq.handler(msg);
+		this.fdmgr.handler(msg);
 	},
 	// 每次写日志的时候，都要检查一次时间
 	_checkFdFilepath: function(now) {
 		var self = this;
 		if (this._deadline < +now) {
-			var abq = this.preQpd && this.preQpd._logfdTime && this._getFilepathFromDate(this.preQpd._logfdTime) == this._getFilepathFromDate(now) ? this.preQpd : this._genQPD(now);
-			this._switchQPD(abq, now);
+			var fdmgr = this.preFdmgr && this.preFdmgr._logfdTime && this._getFilepathFromDate(this.preFdmgr._logfdTime) == this._getFilepathFromDate(now) ? this.preFdmgr : this._genFdmgr(now);
+			this._switchFdmgr(fdmgr, now);
 		}
 	},
 	// 通过时间获取文件路径
 	_getFilepathFromDate: function(time) {
 		return this.opts.root+'/'+dateformat(time, 'yyyymmddHH')+'.log';
 	},
-	// 通过时间创建abq对象
-	_genQPD: function(time) {
+	// 通过时间创建fdmgr对象
+	_genFdmgr: function(time) {
 		var file = this._getFilepathFromDate(time);
 		delete this.opts.file;
-		var abq = new QPD(this.opts);
+		var fdmgr = new ABQ(this.opts);
 
-		debug('gen abq: %s', file);
+		debug('gen fdmgr: %s', file);
 
-		abq.genfd(file);
-		abq._logfdFile = file;
-		abq._logfdTime = time;
+		fdmgr.genfd(file);
+		fdmgr._logfdFile = file;
+		fdmgr._logfdTime = time;
 
-		return abq;
+		return fdmgr;
 	},
-	// 切换写入的abq
-	_switchQPD: function(abq, now) {
+	// 切换写入的fdmgr
+	_switchFdmgr: function(fdmgr, now) {
 		var self = this;
-		var oldQpd = self.abq;
+		var oldFdmgr = self.fdmgr;
 
-		if (oldQpd) {
-			oldQpd.write();
-			oldQpd.once('flushEnd', function() {
-				oldQpd.destroy();
-				debug('free old abq');
+		if (oldFdmgr) {
+			oldFdmgr.write();
+			oldFdmgr.once('flushEnd', function() {
+				oldFdmgr.destroy();
+				debug('free old fdmgr');
 			});
 		}
 
-		// 切换到新的abq
-		debug('switch abq, now:%s, file:%s, old:%d', now, abq._logfdFile, oldQpd ? 1 : 0);
-		self.abq	= abq;
-		self.file	= abq._logfdFile;
+		// 切换到新的fdmgr
+		debug('switch fdmgr, now:%s, file:%s, old:%d', now, fdmgr._logfdFile, oldFdmgr ? 1 : 0);
+		self.fdmgr	= fdmgr;
+		self.file	= fdmgr._logfdFile;
 		var next	= self._nextTime(now);
 		self._deadline = +next;
-		self.emit('switch', abq, oldQpd, now);
+		self.emit('switch', fdmgr, oldFdmgr, now);
 
 		// 提前准备fd
 		if (self.opts.prefdTime) {
 			setTimeout(function() {
-				debug('pre abq: %d', self.opts.prefdTime);
+				debug('pre fdmgr: %d', self.opts.prefdTime);
 
-				if (self.preQpd && self.preQpd !== self.abq) {
-					self.preQpd.destroy();
-					debug('pre destroy abq %s', self.preQpd._logfdTime);
+				if (self.preFdmgr && self.preFdmgr !== self.fdmgr) {
+					self.preFdmgr.destroy();
+					debug('pre destroy fdmgr %s', self.preFdmgr._logfdTime);
 				}
 
-				var newQpdTime = new Date(self._deadline+1);
-				self.preQpd = self._genQPD(newQpdTime);
-				self.emit('preQpd', self.preQpd);
+				var newTime = new Date(self._deadline+1);
+				self.preFdmgr = self._genFdmgr(newTime);
+				self.emit('preFdmgr', self.preFdmgr);
 
 			}, self._deadline - now - self.opts.prefdTime);
 		}
@@ -117,6 +119,6 @@ extend(Logfd.prototype, {
 function main(opts) {
 	var logfd = new Logfd(opts);
 	var handler = logfd.handler.bind(logfd);
-	handler.logfd = logfd;
+	handler.instance = logfd;
 	return handler;
 }

@@ -7,13 +7,13 @@ var log = require('../')({root: __dirname+'/tmp'});
 log(new Date, 'some msg\n');
 log('some msg2');
 
-var abq = log.logfd.abq;
-var file = log.logfd.file;
+var fdmgr = log.instance.fdmgr;
+var file = log.instance.file;
 fs.existsSync(file) && fs.unlinkSync(file);
 
-abq.once('open', function() {
-	abq.toWriteQuery();
-	abq.flushSync();
+fdmgr.once('open', function() {
+	fdmgr.toWriteQuery();
+	fdmgr.flushSync();
 
 	assert(fs.existsSync(file), 'no has file'+file);
 	var cont = fs.readFileSync(file, {encoding: 'utf8'});
