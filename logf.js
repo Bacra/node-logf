@@ -3,17 +3,18 @@
 var ABQ			= require('abq').cls;
 var events		= require('events');
 var extend		= require('extend');
-var debug		= require('debug')('logfd');
+var debug		= require('debug')('logf');
 var dateformat	= require('dateformat');
 
 
 exports = module.exports = main;
+exports.cls = LogF;
 exports.defaults = {
 	root		: process.cwd()+'/log/',
 	prefdTime	: 5000
 };
 
-function Logfd(opts) {
+function LogF(opts) {
 	this.opts = extend({}, exports.defaults, opts);
 	if (this.opts.prefdTime < 0) {
 		this.opts.prefdTime = 0;
@@ -27,9 +28,9 @@ function Logfd(opts) {
 	this.init_();
 }
 
-require('util').inherits(Logfd, events.EventEmitter);
+require('util').inherits(LogF, events.EventEmitter);
 
-extend(Logfd.prototype, {
+extend(LogF.prototype, {
 	init_: function() {
 		var now = new Date;
 		var fdmgr = this._genFdmgr(now);
@@ -48,7 +49,7 @@ extend(Logfd.prototype, {
 	_checkFdFilepath: function(now) {
 		var self = this;
 		if (this._deadline < +now) {
-			var fdmgr = this.preFdmgr && this.preFdmgr._logfdTime && this._getFilepathFromDate(this.preFdmgr._logfdTime) == this._getFilepathFromDate(now) ? this.preFdmgr : this._genFdmgr(now);
+			var fdmgr = this.preFdmgr && this.preFdmgr._logfTime && this._getFilepathFromDate(this.preFdmgr._logfTime) == this._getFilepathFromDate(now) ? this.preFdmgr : this._genFdmgr(now);
 			this._switchFdmgr(fdmgr, now);
 		}
 	},
@@ -65,8 +66,8 @@ extend(Logfd.prototype, {
 		debug('gen fdmgr: %s', file);
 
 		fdmgr.genfd(file);
-		fdmgr._logfdFile = file;
-		fdmgr._logfdTime = time;
+		fdmgr._logfFile = file;
+		fdmgr._logfTime = time;
 
 		return fdmgr;
 	},
@@ -84,9 +85,9 @@ extend(Logfd.prototype, {
 		}
 
 		// 切换到新的fdmgr
-		debug('switch fdmgr, now:%s, file:%s, old:%d', now, fdmgr._logfdFile, oldFdmgr ? 1 : 0);
+		debug('switch fdmgr, now:%s, file:%s, old:%d', now, fdmgr._logfFile, oldFdmgr ? 1 : 0);
 		self.fdmgr	= fdmgr;
-		self.file	= fdmgr._logfdFile;
+		self.file	= fdmgr._logfFile;
 		var next	= self._nextTime(now);
 		self._deadline = +next;
 		self.emit('switch', fdmgr, oldFdmgr, now);
@@ -98,7 +99,7 @@ extend(Logfd.prototype, {
 
 				if (self.preFdmgr && self.preFdmgr !== self.fdmgr) {
 					self.preFdmgr.destroy();
-					debug('pre destroy fdmgr %s', self.preFdmgr._logfdTime);
+					debug('pre destroy fdmgr %s', self.preFdmgr._logfTime);
 				}
 
 				var newTime = new Date(self._deadline+1);
@@ -117,8 +118,8 @@ extend(Logfd.prototype, {
 
 
 function main(opts) {
-	var logfd = new Logfd(opts);
-	var handler = logfd.handler.bind(logfd);
-	handler.instance = logfd;
+	var logf = new LogF(opts);
+	var handler = logf.handler.bind(logf);
+	handler.instance = logf;
 	return handler;
 }

@@ -1,18 +1,18 @@
-node-logfd  [![Build Status](https://travis-ci.org/Bacra/node-logfd.svg?branch=master)](https://travis-ci.org/Bacra/node-logfd)
+node-logf  [![Build Status](https://travis-ci.org/Bacra/node-logf.svg?branch=master)](https://travis-ci.org/Bacra/node-logf)
 ==================
 
-Append log msg to file. (No defined log format And fast)
+Append log msg to file continuously. (No defined log format And fast)
 
 ## Install
 
 ```
-npm i logfd --save
+npm i logf --save
 ```
 
 ## Usage
 
 ```javascript
-var log = require('logfd')
+var log = require('logf')
 
 log(new Date, 'some msg');
 log('some msg');

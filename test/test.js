@@ -1,4 +1,4 @@
-require('debug').enable('logfd');
+require('debug').enable('logf');
 
 var fs = require('fs');
 var assert = require('assert');
