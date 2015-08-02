@@ -16,7 +16,7 @@ fdmgr.once('open', function() {
 	fdmgr.flushSync();
 
 	assert(fs.existsSync(file), 'no has file'+file);
-	var cont = fs.readFileSync(file, {encoding: 'utf8'});
+	var cont = fs.readFileSync(file).toString();
 	assert.equal(cont, 'some msg\nsome msg2', 'write content err:'+cont);
 	process.exit();
 });

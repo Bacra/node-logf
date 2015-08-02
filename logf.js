@@ -11,6 +11,7 @@ exports = module.exports = main;
 exports.cls = LogF;
 exports.defaults = {
 	root		: process.cwd()+'/log/',
+	interval	: 3600000,
 	prefdTime	: 5000
 };
 
@@ -112,7 +113,8 @@ extend(LogF.prototype, {
 	// 获取下个时间节点
 	_nextTime: function(now) {
 		now = +now;
-		return new Date(now - now % 3600000 + 3600000);
+		var interval = this.opts.interval;
+		return new Date(now - now % interval + interval);
 	}
 });
 

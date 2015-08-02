@@ -1,7 +1,7 @@
 {
   "name": "logf",
-  "version": "0.1.2",
-  "description": "Append log msg to file. (No defined log format And fast)",
+  "version": "0.1.4",
+  "description": "Append log msg to file continuously. (No defined log format And fast)",
   "main": "logf.js",
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
   "dependencies": {
     "dateformat": "^1.0.11",
     "debug": "^2.2.0",
-    "abq": "^0.1.6",
+    "abq": "^0.1.8",
     "extend": "^3.0.0"
   }
 }
