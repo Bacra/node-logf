@@ -37,14 +37,14 @@ extend(LogF.prototype, {
 		var fdmgr = this._genFdmgr(now);
 		this._switchFdmgr(fdmgr, now);
 	},
-	handler: function(now, msg) {
+	handle: function(now, msg) {
 		if (!(now instanceof Date)) {
 			msg = now;
 			now = new Date();
 		}
 
 		this._checkFdFilepath(now);
-		this.fdmgr.handler(msg);
+		this.fdmgr.handle(msg);
 	},
 	// 每次写日志的时候，都要检查一次时间
 	_checkFdFilepath: function(now) {
@@ -121,7 +121,7 @@ extend(LogF.prototype, {
 
 function main(opts) {
 	var logf = new LogF(opts);
-	var handler = logf.handler.bind(logf);
-	handler.instance = logf;
-	return handler;
+	var handle = logf.handle.bind(logf);
+	handle.instance = logf;
+	return handle;
 }
