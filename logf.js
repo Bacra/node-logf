@@ -1,6 +1,6 @@
 'use strict';
 
-var ABQ			= require('abq').cls;
+var ABQ			= require('abq');
 var events		= require('events');
 var extend		= require('extend');
 var debug		= require('debug')('logf');
@@ -62,7 +62,7 @@ extend(LogF.prototype, {
 	_genFdmgr: function(time) {
 		var file = this._getFilepathFromDate(time);
 		delete this.opts.file;
-		var fdmgr = new ABQ(this.opts);
+		var fdmgr = ABQ(this.opts).instance;
 
 		debug('gen fdmgr: %s', file);
 
